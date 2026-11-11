@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "puntuk-be"
+version = "0.1.0"
+description = "Optional secure link-preview enrichment for stop-tumpuk"
+requires-python = ">=3.13"
+dependencies = [
+  "Django>=5.2,<5.3",
+  "django-cors-headers>=4.7,<5",
+  "djangorestframework>=3.16,<4",
+  "gunicorn>=23,<24",
+  "psycopg[binary]>=3.2,<4",
+  "uvicorn>=0.34,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3,<9",
+  "pytest-django>=4.11,<5",
+  "pyright>=1.1.400,<2",
+  "ruff>=0.11,<1",
+]
+
+[tool.setuptools]
+py-modules = []
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pyright]
+pythonVersion = "3.13"
+venvPath = "."
+venv = ".venv"
+typeCheckingMode = "strict"
+include = ["apps", "config"]
+exclude = ["**/migrations"]
+reportMissingTypeStubs = false
