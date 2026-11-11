@@ -192,5 +192,6 @@ REST_FRAMEWORK = {
         "account_user": "60/hour",
         "preview_anon": "10/hour",
         "preview_user": "60/hour",
+        "preview_ip": "120/hour",
     },
 }
