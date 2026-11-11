@@ -317,6 +317,29 @@ def swagger_ui(_: object) -> HttpResponse:
 <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css"></head>
 <body><div id="swagger-ui"></div>
 <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-<script>window.onload = () => SwaggerUIBundle({{url: {config}, dom_id: '#swagger-ui'}});</script>
+<script>
+const readCookie = (name) => document.cookie
+  .split('; ')
+  .find((entry) => entry.startsWith(name + '='))?.split('=')[1] || '';
+const startSwagger = () => SwaggerUIBundle({{
+  url: {config},
+  dom_id: '#swagger-ui',
+  requestInterceptor: (request) => {{
+    request.credentials = 'include';
+    const method = (request.method || 'GET').toUpperCase();
+    const csrfToken = readCookie('csrftoken');
+    if (csrfToken && !['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method)) {{
+      request.headers = {{
+        ...(request.headers || {{}}),
+        'X-CSRFToken': decodeURIComponent(csrfToken)
+      }};
+    }}
+    return request;
+  }}
+}});
+window.addEventListener('load', () => fetch('/v1/auth/csrf', {{
+  credentials: 'include'
+}}).catch(() => {{}}).finally(startSwagger));
+</script>
 </body></html>"""
     return HttpResponse(html, content_type="text/html; charset=utf-8")

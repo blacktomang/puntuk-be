@@ -22,7 +22,9 @@ python manage.py runserver
 development, copy `.env.example` to `.env` and run `docker compose up --build`.
 When `DJANGO_DEBUG=true`, open `/swagger/` for the development Swagger UI or
 `/swagger/openapi.json` for the generated OpenAPI document. These routes return
-404 when debug mode is disabled.
+404 when debug mode is disabled. The UI requests a CSRF cookie on load, sends
+the token for unsafe requests, and uses browser session cookies so a successful
+login can call protected routes interactively.
 
 ## Checks
 

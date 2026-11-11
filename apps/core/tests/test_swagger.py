@@ -21,6 +21,9 @@ class SwaggerDevelopmentTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("swagger-ui", response.content.decode())
         self.assertIn("/swagger/openapi.json", response.content.decode())
+        self.assertIn("/v1/auth/csrf", response.content.decode())
+        self.assertIn("X-CSRFToken", response.content.decode())
+        self.assertIn("credentials = 'include'", response.content.decode())
 
     @override_settings(DEBUG=False)
     def test_swagger_routes_are_unavailable_when_not_debug(self) -> None:
