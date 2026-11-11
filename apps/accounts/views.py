@@ -7,6 +7,8 @@ from typing import cast
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpRequest
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from rest_framework import status
@@ -127,3 +129,14 @@ class PasswordResetConfirmView(APIView):
         user.set_password(serializer.validated_data["password"])
         user.save(update_fields=["password"])
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GoogleLinkStartView(APIView):
+    """Start Google OAuth only for an already authenticated account."""
+
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [AccountUserThrottle]
+
+    def get(self, request: Request):
+        del request
+        return redirect(reverse("social:begin", kwargs={"backend": "google-oauth2"}))

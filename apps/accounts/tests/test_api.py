@@ -69,6 +69,19 @@ class AccountApiTests(TestCase):
         user.refresh_from_db()
         self.assertTrue(user.check_password("new correct horse battery"))
 
+    def test_google_link_requires_session_and_starts_social_flow(self) -> None:
+        client = Client()
+        self.assertEqual(client.get("/v1/auth/google/link").status_code, 403)
+
+        user = User.objects.create_user(
+            username="reader", email="reader@example.com", password="correct horse battery"
+        )
+        client.force_login(user)
+        response = client.get("/v1/auth/google/link")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/v1/auth/social/login/google-oauth2", response["Location"])
+
 
 class Backend:
     name = "google-oauth2"
