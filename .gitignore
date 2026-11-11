@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+coverage.xml
+htmlcov/
+
+# Django
+*.sqlite3
+media/
+staticfiles/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Local task tracking
+TASKS.md
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
