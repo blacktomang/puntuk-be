@@ -1,5 +1,6 @@
 import asyncio
 
+from apps.previews.fetcher import FetchFailure, PreviewFetchError
 from apps.previews.video import fetch_youtube_runtime, parse_iso8601_duration, youtube_video_id
 
 
@@ -27,6 +28,12 @@ class Client:
         return {"items": [{"contentDetails": {"duration": "PT12M3S"}}]}
 
 
+class FailingClient:
+    async def fetch_json(self, _: str, *, params: dict[str, str]) -> dict[str, object]:
+        del params
+        raise PreviewFetchError(FetchFailure.TIMEOUT)
+
+
 def test_runtime_uses_fixed_provider_endpoint() -> None:
     client = Client()
 
@@ -38,3 +45,15 @@ def test_runtime_uses_fixed_provider_endpoint() -> None:
     assert runtime.seconds == 723
     assert client.endpoint == "https://www.googleapis.com/youtube/v3/videos"
     assert client.params == {"part": "contentDetails", "id": "abc123", "key": "secret"}
+
+
+def test_provider_failure_keeps_runtime_unknown() -> None:
+    runtime = asyncio.run(
+        fetch_youtube_runtime(
+            "https://www.youtube.com/watch?v=abc123",
+            "secret",
+            fetcher=FailingClient(),
+        )
+    )
+
+    assert runtime is None

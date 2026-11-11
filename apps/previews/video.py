@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from typing import Any, Protocol, cast
 from urllib.parse import parse_qs, urlsplit
 
+from apps.previews.fetcher import PreviewFetchError
+
 YOUTUBE_API_ENDPOINT = "https://www.googleapis.com/youtube/v3/videos"
 _DURATION = re.compile(
     r"^P(?:(?P<days>\d+)D)?T(?:(?P<hours>\d+)H)?(?:(?P<minutes>\d+)M)?(?:(?P<seconds>\d+)S)?$"
@@ -68,5 +70,5 @@ async def fetch_youtube_runtime(
         duration = items[0].get("contentDetails", {}).get("duration") if items else None
         seconds = parse_iso8601_duration(duration) if isinstance(duration, str) else None
         return VideoRuntime(seconds) if seconds is not None else None
-    except (ValueError, TypeError, KeyError, IndexError):
+    except (PreviewFetchError, ValueError, TypeError, KeyError, IndexError):
         return None
