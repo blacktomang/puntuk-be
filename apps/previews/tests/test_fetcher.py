@@ -58,6 +58,17 @@ def test_rejects_private_literal_before_request() -> None:
     assert transport.calls == []
 
 
+def test_rejects_private_ipv6_literal_before_request() -> None:
+    transport = FakeTransport({})
+    fetcher = GuardedFetcher(resolver=public_resolver, transport=transport)
+
+    with pytest.raises(PreviewFetchError) as raised:
+        run(fetcher.fetch_html("http://[::1]/"))
+
+    assert raised.value.failure is FetchFailure.BLOCKED
+    assert transport.calls == []
+
+
 def test_rejects_private_dns_answer_before_request() -> None:
     async def private_resolver(_: str, __: int) -> Sequence[str]:
         return ("10.0.0.8",)

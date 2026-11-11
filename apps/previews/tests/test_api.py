@@ -30,8 +30,10 @@ class PreviewApiTests(TestCase):
         client = Client()
         client.force_login(user)
 
-        response = client.post("/v1/previews", data={"url": "https://example.test"})
+        with self.assertLogs("apps.previews.views", level="INFO") as logs:
+            response = client.post("/v1/previews", data={"url": "https://example.test"})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["title"], "Example")
         build_preview.assert_called_once_with("https://example.test")
+        self.assertNotIn("example.test", "\n".join(logs.output))
