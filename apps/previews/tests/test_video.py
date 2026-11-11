@@ -16,29 +16,22 @@ def test_parses_youtube_iso8601_runtime() -> None:
     assert parse_iso8601_duration("not-a-duration") is None
 
 
-class Response:
-    status_code = 200
-
-    def json(self) -> dict[str, object]:
-        return {"items": [{"contentDetails": {"duration": "PT12M3S"}}]}
-
-
 class Client:
     def __init__(self) -> None:
         self.endpoint: str | None = None
         self.params: dict[str, str] | None = None
 
-    async def get(self, endpoint: str, *, params: dict[str, str]) -> Response:
+    async def fetch_json(self, endpoint: str, *, params: dict[str, str]) -> dict[str, object]:
         self.endpoint = endpoint
         self.params = params
-        return Response()
+        return {"items": [{"contentDetails": {"duration": "PT12M3S"}}]}
 
 
 def test_runtime_uses_fixed_provider_endpoint() -> None:
     client = Client()
 
     runtime = asyncio.run(
-        fetch_youtube_runtime("https://www.youtube.com/watch?v=abc123", "secret", client=client)
+        fetch_youtube_runtime("https://www.youtube.com/watch?v=abc123", "secret", fetcher=client)
     )
 
     assert runtime is not None

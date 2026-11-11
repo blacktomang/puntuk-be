@@ -82,9 +82,9 @@ type from metadata without executing JavaScript.
    Count language-aware word segments in its main text only; calculate seconds
    from the fixed 250-WPM assumption.
 7. For known YouTube URLs, optionally call the fixed official YouTube Data API
-   endpoint when `YOUTUBE_API_KEY` is configured; the submitted URL is never
-   used as an API endpoint and an unavailable/quota-limited response remains
-   unknown duration.
+   endpoint through the guarded JSON transport when `YOUTUBE_API_KEY` is
+   configured; the submitted URL is never used as an API endpoint and an
+   unavailable/quota-limited response remains unknown duration.
 8. Discard source bytes and extracted text. Return normalized safe fields.
 
 Source duration is nullable and has `api-runtime`, `publisher-estimate`,

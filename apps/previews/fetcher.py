@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import asyncio
 import ipaddress
+import json
 import socket
 from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Protocol
-from urllib.parse import urljoin
+from typing import Any, Protocol, cast
+from urllib.parse import urlencode, urljoin
 
 import httpx
 
@@ -18,6 +19,7 @@ from apps.previews.policies import (
     UrlPolicyError,
     ensure_public_address,
     is_html_content_type,
+    is_json_content_type,
     validate_external_url,
 )
 
@@ -174,6 +176,31 @@ class GuardedFetcher:
             )
 
         raise PreviewFetchError(FetchFailure.TOO_MANY_REDIRECTS)
+
+    async def fetch_json(self, raw_url: str, *, params: dict[str, str]) -> dict[str, object]:
+        """Fetch a bounded JSON response through the same URL/DNS policy."""
+        target = self._safe_url(raw_url)
+        await self._ensure_public_target(target)
+        query = urlencode(params)
+        request_url = f"{target.value}?{query}" if query else target.value
+        response = await self._transport.get(
+            request_url,
+            timeout_seconds=self._timeout_seconds,
+            max_bytes=self._max_bytes,
+        )
+        if len(response.body) > self._max_bytes:
+            raise PreviewFetchError(FetchFailure.TOO_LARGE)
+        if response.status_code < 200 or response.status_code >= 300:
+            raise PreviewFetchError(FetchFailure.HTTP_ERROR)
+        if not is_json_content_type(response.headers.get("content-type")):
+            raise PreviewFetchError(FetchFailure.NETWORK)
+        try:
+            payload: Any = json.loads(response.body)
+        except (TypeError, ValueError) as error:
+            raise PreviewFetchError(FetchFailure.NETWORK) from error
+        if not isinstance(payload, dict):
+            raise PreviewFetchError(FetchFailure.NETWORK)
+        return cast(dict[str, object], payload)
 
     @staticmethod
     def _safe_url(raw_url: str) -> ExternalUrl:

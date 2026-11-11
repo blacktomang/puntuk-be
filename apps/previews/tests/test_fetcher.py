@@ -130,3 +130,23 @@ def test_returns_bounded_html_with_normalized_url() -> None:
 
     assert response.url == "https://example.test/"
     assert response.content == b"<h1>ok</h1>"
+
+
+def test_fetches_provider_json_through_guarded_transport() -> None:
+    endpoint = "https://api.example.test/runtime"
+    request_url = endpoint + "?id=abc&part=contentDetails"
+    transport = FakeTransport(
+        {
+            request_url: TransportResponse(
+                200,
+                {"content-type": "application/json"},
+                b'{"items": []}',
+            )
+        }
+    )
+    fetcher = GuardedFetcher(resolver=public_resolver, transport=transport)
+
+    response = run(fetcher.fetch_json(endpoint, params={"id": "abc", "part": "contentDetails"}))
+
+    assert response == {"items": []}
+    assert transport.calls == [request_url]

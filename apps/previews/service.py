@@ -38,7 +38,13 @@ def build_preview(url: str, *, fetcher: GuardedFetcher | None = None) -> dict[st
             "completeness": estimate.completeness,
         }
     else:
-        runtime = asyncio.run(fetch_youtube_runtime(fetched.url, os.getenv("YOUTUBE_API_KEY", "")))
+        runtime = asyncio.run(
+            fetch_youtube_runtime(
+                fetched.url,
+                os.getenv("YOUTUBE_API_KEY", ""),
+                fetcher=guarded_fetcher,
+            )
+        )
         if runtime is not None:
             duration = {
                 "seconds": runtime.seconds,

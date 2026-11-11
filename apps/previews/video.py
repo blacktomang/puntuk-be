@@ -7,8 +7,6 @@ from dataclasses import dataclass
 from typing import Any, Protocol, cast
 from urllib.parse import parse_qs, urlsplit
 
-import httpx
-
 YOUTUBE_API_ENDPOINT = "https://www.googleapis.com/youtube/v3/videos"
 _DURATION = re.compile(
     r"^P(?:(?P<days>\d+)D)?T(?:(?P<hours>\d+)H)?(?:(?P<minutes>\d+)M)?(?:(?P<seconds>\d+)S)?$"
@@ -22,8 +20,8 @@ class VideoRuntime:
     completeness: str = "full"
 
 
-class ProviderClient(Protocol):
-    async def get(self, endpoint: str, *, params: dict[str, str]) -> Any: ...
+class JsonFetcher(Protocol):
+    async def fetch_json(self, raw_url: str, *, params: dict[str, str]) -> dict[str, object]: ...
 
 
 def youtube_video_id(raw_url: str) -> str | None:
@@ -56,28 +54,19 @@ async def fetch_youtube_runtime(
     raw_url: str,
     api_key: str,
     *,
-    client: ProviderClient | None = None,
+    fetcher: JsonFetcher,
 ) -> VideoRuntime | None:
     video_id = youtube_video_id(raw_url)
     if not video_id or not api_key:
         return None
-    owned_client = client is None
-    http_client = client or httpx.AsyncClient(timeout=httpx.Timeout(5.0), follow_redirects=False)
     try:
-        response = await http_client.get(
+        body = await fetcher.fetch_json(
             YOUTUBE_API_ENDPOINT,
             params={"part": "contentDetails", "id": video_id, "key": api_key},
         )
-        if response.status_code != 200:
-            return None
-        body: Any = response.json()
-        body_map = cast(dict[str, Any], body) if isinstance(body, dict) else {}
-        items = cast(list[dict[str, Any]], body_map.get("items", []))
+        items = cast(list[dict[str, Any]], body.get("items", []))
         duration = items[0].get("contentDetails", {}).get("duration") if items else None
         seconds = parse_iso8601_duration(duration) if isinstance(duration, str) else None
         return VideoRuntime(seconds) if seconds is not None else None
-    except (httpx.HTTPError, ValueError, TypeError, KeyError, IndexError):
+    except (ValueError, TypeError, KeyError, IndexError):
         return None
-    finally:
-        if owned_client:
-            await http_client.aclose()  # type: ignore[union-attr]
