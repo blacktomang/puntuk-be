@@ -27,3 +27,33 @@ def test_rejects_unsafe_preview_image_url() -> None:
     )
 
     assert result.thumbnail_url is None
+
+
+def test_uses_json_ld_after_open_graph_metadata() -> None:
+    result = parse_metadata(
+        b"""<script type="application/ld+json">
+        {"headline":"Structured title","description":"Structured description",
+         "image":{"url":"/structured.jpg"}}
+        </script>""",
+        final_url="https://example.test/article",
+    )
+
+    assert result.title == "Structured title"
+    assert result.description == "Structured description"
+    assert result.thumbnail_url == "https://example.test/structured.jpg"
+
+
+def test_open_graph_precedes_json_ld() -> None:
+    result = parse_metadata(
+        b"""<meta property="og:title" content="Open Graph title">
+        <script type="application/ld+json">{"headline":"Structured title"}</script>""",
+        final_url="https://example.test/article",
+    )
+
+    assert result.title == "Open Graph title"
+
+
+def test_malformed_html_still_returns_normalized_metadata() -> None:
+    result = parse_metadata(b"<html><title>Unclosed", final_url="https://example.test/article")
+
+    assert result.title == "Unclosed"

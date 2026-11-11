@@ -81,7 +81,11 @@ type from metadata without executing JavaScript.
 6. For article candidates, run Trafilatura on in-memory HTML and URL context.
    Count language-aware word segments in its main text only; calculate seconds
    from the fixed 250-WPM assumption.
-7. Discard source bytes and extracted text. Return normalized safe fields.
+7. For known YouTube URLs, optionally call the fixed official YouTube Data API
+   endpoint when `YOUTUBE_API_KEY` is configured; the submitted URL is never
+   used as an API endpoint and an unavailable/quota-limited response remains
+   unknown duration.
+8. Discard source bytes and extracted text. Return normalized safe fields.
 
 Source duration is nullable and has `api-runtime`, `publisher-estimate`,
 `word-count`, `manual`, or `unknown` provenance plus `full`, `partial`, or

@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+import os
 from typing import Any
 
 from apps.previews.article import estimate_article_duration
 from apps.previews.fetcher import GuardedFetcher, PreviewFetchError
 from apps.previews.metadata import parse_metadata
+from apps.previews.video import fetch_youtube_runtime
 
 
 def build_preview(url: str, *, fetcher: GuardedFetcher | None = None) -> dict[str, Any]:
@@ -35,6 +37,14 @@ def build_preview(url: str, *, fetcher: GuardedFetcher | None = None) -> dict[st
             "provenance": estimate.provenance,
             "completeness": estimate.completeness,
         }
+    else:
+        runtime = asyncio.run(fetch_youtube_runtime(fetched.url, os.getenv("YOUTUBE_API_KEY", "")))
+        if runtime is not None:
+            duration = {
+                "seconds": runtime.seconds,
+                "provenance": runtime.provenance,
+                "completeness": runtime.completeness,
+            }
 
     return {
         "status": "available",
