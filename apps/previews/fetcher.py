@@ -102,7 +102,7 @@ class HttpxBoundedTransport:
                     trust_env=False,
                     headers={
                         "User-Agent": PREVIEW_USER_AGENT,
-                        "Accept": "text/html,application/xhtml+xml",
+                        "Accept": "text/html,application/xhtml+xml,application/json",
                     },
                     timeout=timeout,
                 ) as client,
