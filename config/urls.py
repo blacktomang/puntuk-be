@@ -12,4 +12,5 @@ urlpatterns = [
     path("healthz", healthz, name="healthz"),
     path("v1/auth/", include("apps.accounts.urls")),
     path("v1/auth/social/", include("social_django.urls", namespace="social")),
+    path("v1/", include("apps.previews.urls")),
 ]
