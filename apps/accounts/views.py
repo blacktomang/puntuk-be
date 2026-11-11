@@ -7,6 +7,7 @@ from typing import cast
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpRequest
+from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.encoding import force_str
@@ -37,6 +38,13 @@ class AccountUserThrottle(UserRateThrottle):
 
 def user_payload(user: User) -> dict[str, str]:
     return {"username": user.username, "email": user.email}
+
+
+class CsrfTokenView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request: Request) -> Response:
+        return Response({"csrfToken": get_token(cast(HttpRequest, request._request))})
 
 
 class RegisterView(APIView):

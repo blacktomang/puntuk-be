@@ -12,6 +12,13 @@ from apps.accounts.social import enforce_google_account_policy
 
 
 class AccountApiTests(TestCase):
+    def test_csrf_endpoint_sets_a_token_cookie(self) -> None:
+        response = Client().get("/v1/auth/csrf")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["csrfToken"])
+        self.assertIn("csrftoken", response.cookies)
+
     def test_register_starts_a_session(self) -> None:
         response = Client().post(
             "/v1/auth/register",
