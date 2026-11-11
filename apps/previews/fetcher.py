@@ -99,6 +99,7 @@ class HttpxBoundedTransport:
             async with (
                 httpx.AsyncClient(
                     follow_redirects=False,
+                    trust_env=False,
                     headers={
                         "User-Agent": PREVIEW_USER_AGENT,
                         "Accept": "text/html,application/xhtml+xml",

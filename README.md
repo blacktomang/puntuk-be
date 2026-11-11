@@ -62,3 +62,6 @@ PWA validation are release gates outside this service.
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for the production configuration, rollback,
 backup, and incident runbook.
+
+The outbound-fetch controls and their remaining deployment-layer assumptions
+are recorded in [SECURITY_REVIEW.md](SECURITY_REVIEW.md).
