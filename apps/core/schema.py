@@ -337,9 +337,7 @@ const startSwagger = () => SwaggerUIBundle({{
     return request;
   }}
 }});
-window.addEventListener('load', () => fetch('/v1/auth/csrf', {{
-  credentials: 'include'
-}}).catch(() => {{}}).finally(startSwagger));
+window.addEventListener('load', startSwagger);
 </script>
 </body></html>"""
     return HttpResponse(html, content_type="text/html; charset=utf-8")
