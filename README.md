@@ -20,6 +20,9 @@ python manage.py runserver
 
 `GET /healthz` returns `{"status":"ok"}`. For PostgreSQL-backed container
 development, copy `.env.example` to `.env` and run `docker compose up --build`.
+When `DJANGO_DEBUG=true`, open `/swagger/` for the development Swagger UI or
+`/swagger/openapi.json` for the generated OpenAPI document. These routes return
+404 when debug mode is disabled.
 
 ## Checks
 
