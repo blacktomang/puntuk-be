@@ -65,3 +65,10 @@ or security control changes; update [TECH_STACK.md](TECH_STACK.md) when a
 dependency or runtime decision changes; and check items in [TASKS.md](TASKS.md)
 only after implementation and verification. Report what changed, commands run,
 and known limitations.
+
+## Coding-agent collaboration
+
+When a coding agent materially contributes to a change, preserve that
+attribution in the commit message with a trailer such as
+`Co-authored-by: Codex <codex@openai.com>`. Keep the human repository author as
+the commit author, and describe agent-assisted work in the handoff when useful.

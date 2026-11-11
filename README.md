@@ -39,9 +39,10 @@ configuration, and a shared production cache for cross-worker rate limits.
 
 - `POST /v1/auth/register`, `/login`, `/logout`, `/password-reset`, and the
   reset-confirmation route provide local username/password accounts.
-- `GET /v1/auth/session` reports browser-session state. Google OAuth begins at
-  the configured `v1/auth/social/` route and only links to an existing account
-  through an authenticated explicit flow.
+- `GET /v1/auth/session` reports browser-session state. Authenticated users can
+  start explicit Google linking at `GET /v1/auth/google/link`; ordinary Google
+  OAuth begins at the configured `v1/auth/social/` route and never silently
+  merges a local account by email.
 - `POST /v1/previews` requires a session and accepts `{ "url": "https://…" }`.
   It returns safe preview metadata and an optional word-count estimate. Link
   capture must continue locally when this API is unavailable.
