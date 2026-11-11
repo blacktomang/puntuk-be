@@ -59,3 +59,6 @@ cloud metadata endpoints. Configure PostgreSQL backups and test password-reset
 mail plus Google callbacks using the production app/API origins. The frontend
 is a separate repository; its IndexedDB/export migration and physical-device
 PWA validation are release gates outside this service.
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the production configuration, rollback,
+backup, and incident runbook.
